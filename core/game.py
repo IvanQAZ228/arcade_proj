@@ -208,7 +208,7 @@ class GameView(arcade.View):
             "teleporter": {"shard": 3, "copper_ingot": 2, "metal2_block": 5},
             "chest": {"metal2_block": 4, "copper_ingot": 2},
             "titanium_block": {"titanium_ingot": 2},
-            "glass_block": {"dust": 4, "energy_dust": 1},
+            "glass_block": {"dust": 4,"titanium_ingot": 1},
             "chem_lab": {"titanium_ingot": 3, "glass_block": 2},
             "battery": {"titanium_ingot": 4, "uranium_rod": 1},
             "reflector": {"titanium_ingot": 2, "shard": 2}
@@ -601,6 +601,8 @@ class GameView(arcade.View):
         self.camera = arcade.camera.Camera2D()
         self.gui_camera = arcade.camera.Camera2D()
         self.ui.camera = arcade.camera.Camera2D()
+        if hasattr(self.pause_manager, 'on_resize'):
+            self.pause_manager.on_resize(width, height)
 
     def on_mouse_scroll(self, x, y, sx, sy):
         if self.is_paused or self.is_dead: return
@@ -627,6 +629,8 @@ class GameView(arcade.View):
         if self.is_dead:
             if key == arcade.key.SPACE:
                 self.player.respawn()
+                self.player.left_pressed = False
+                self.player.right_pressed = False
                 self.is_dead = False
                 self.save_game()
             return
@@ -673,7 +677,6 @@ class GameView(arcade.View):
                                 direction=1 if self.player.facing_right else -1)
 
     def on_key_release(self, key, modifiers):
-        if self.is_dead: return
         if key in (arcade.key.A, arcade.key.LEFT):
             self.player.left_pressed = False
         elif key in (arcade.key.D, arcade.key.RIGHT):
@@ -693,6 +696,12 @@ class GameView(arcade.View):
             if math.hypot(self.player.center_x - world_x, self.player.center_y - world_y) > 300: return
 
             selected = self.slot_contents[self.selected_slot_index]
+
+            if selected == "acid_flask" and self.player.inventory.get("acid_flask", 0) > 0:
+                self.player.mana = min(self.player.max_mana, self.player.mana + 100)
+                self.remove_from_inventory("acid_flask", 1)
+                return
+
             machine_blocks = ["metal2_block", "furnace", "assembler", "teleporter", "extractor", "press",
                               "titanium_block", "glass_block", "chem_lab", "battery", "reflector", "chest"]
 

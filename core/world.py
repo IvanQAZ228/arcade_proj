@@ -170,7 +170,9 @@ class World:
             if noise > 0.4: return BLOCK_EMPTY
             rand = random.random()
             if noise > 0.35 and rand < 0.5: return BLOCK_ACID
-            if rand < 0.02:
+            if rand < 0.01:
+                return BLOCK_TERMINAL
+            elif rand < 0.02:
                 return BLOCK_MONOLITH
             elif rand < 0.04:
                 return BLOCK_URANIUM_ORE
