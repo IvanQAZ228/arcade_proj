@@ -391,6 +391,12 @@ class GameView(arcade.View):
         if not self.show_teleport_menu:
             self.player.update_movement()
             self.physics_engine.update()
+
+            if self.physics_engine.can_jump() and abs(self.player.change_x) > 0:
+                if random.random() < 0.2:
+                    self.particle_list.append(
+                        WalkingParticle(self.player.center_x, self.player.bottom, (150, 150, 150, 150)))
+
             self.player.update(delta_time)
             self.particle_list.update(delta_time)
 
